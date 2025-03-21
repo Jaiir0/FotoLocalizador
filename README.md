@@ -28,10 +28,10 @@ Este script extrai metadados EXIF e coordenadas GPS de imagens (JPG, PNG, etc.) 
    git clone https://github.com/Jaiir0/FotoLocalizador.git
    cd FotoLocalizador
    
-2. Instale as dependências: 
+2. Instale as dependências:
    pip install -r requirements.txt
 
-3. Executando o Script
+4. Executando o Script
 
     Coloque as imagens que deseja processar na raiz do projeto.
     Execute o script:
