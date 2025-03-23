@@ -9,7 +9,7 @@ EXTENSOES_ACEITAS = ['jpg', 'png', 'jpeg', 'JPG', 'PNG', 'JPEG']
 API_URL = "https://nominatim.openstreetmap.org/reverse"
 HEADERS = {"User-Agent": "ExtratorDeCoordenadas/1.0"}
 
-# converte coordenadas de graus, minutos e segundos para graus decimais.
+# Converte coordenadas de graus, minutos e segundos para graus decimais.
 def converte_graus_decimais(direcao, coord):
     graus = coord[0].numerator / coord[0].denominator
     minutos = coord[1].numerator / coord[1].denominator
@@ -22,7 +22,7 @@ def converte_graus_decimais(direcao, coord):
 
     return coordenada
 
-#obtém informações detalhadas da localização a partir da latitude e longitude.
+# Obtém informações detalhadas da localização a partir da latitude e longitude.
 def obter_endereco(lat, lon):
     try:
         params = {"lat": lat, "lon": lon, "format": "json"}
@@ -33,13 +33,13 @@ def obter_endereco(lat, lon):
         print(f"Erro ao obter endereço: {e}")
         return None
 
-#Extrai coordenadas GPS de uma imagem e converte para graus decimais e UTM.
+# Extrai coordenadas GPS de uma imagem e converte para graus decimais e UTM.
 def extrair_coordenadas(arq):
     try:
         with Image.open(arq) as foto:
             exif_data = foto._getexif()
             
-            if 34853 in exif_data:  # Verifica se a imagem contém metadados GPS
+            if exif_data is not None and 34853 in exif_data:  # Verifica se a imagem contém metadados GPS
                 info = exif_data[34853]
                 
                 lat = converte_graus_decimais(info[1], info[2])
@@ -48,11 +48,11 @@ def extrair_coordenadas(arq):
                 if -90 <= lat <= 90 and -180 <= lon <= 180:
                     print(f"\nCoordenadas GPS encontradas: Latitude = {lat}, Longitude = {lon}")
                     
-                    # converte as coordenadas para UTM
+                    # Converte as coordenadas para UTM
                     utm_x, utm_y, fuso, letra = utm.from_latlon(lat, lon)
                     fuso_letra = str(fuso) + letra
                     
-                    # obtém informações detalhadas da localização
+                    # Obtém informações detalhadas da localização
                     endereco = obter_endereco(lat, lon)
                     if endereco:
                         print("\nInformações detalhadas da localização:")
@@ -73,17 +73,18 @@ def extrair_coordenadas(arq):
     except Exception as e:
         print(f"Erro ao processar {arq}: {e}")
 
+# Exibe os metadados EXIF da imagem.
 def print_metadados(filepath):
     try:
         with Image.open(filepath) as image: 
-            exif_data = image._getexif() # Metadados EXIF
+            exif_data = image._getexif()  # Metadados EXIF
             
-            # exibe os metadados EXIF, se existirem
+            # Exibe os metadados EXIF, se existirem
             if exif_data is not None:
                 print("\nMetadados EXIF:")
                 for tag, value in exif_data.items():
-                    tagname = ExifTags.TAGS.get(tag, tag) # converte o código da tag para o nome legível
-                    print(f"{tagname}: {value}") # exibe os dados no terminal
+                    tagname = ExifTags.TAGS.get(tag, tag)  # Converte o código da tag para o nome legível
+                    print(f"{tagname}: {value}")  # Exibe os dados no terminal
             else:
                 print("\nEsta imagem não contém metadados EXIF.")
             
@@ -92,11 +93,11 @@ def print_metadados(filepath):
     except Exception as e:
         print(f"\nErro ao processar a imagem: {e}")
 
-#Processa todas as imagens na pasta atual e exibe as coordenadas e metadados.
+# Processa todas as imagens na pasta atual e exibe as coordenadas e metadados.
 def main():
     fotos = []
     
-     # Percorre todos os arquivos no diretório atual
+    # Percorre todos os arquivos no diretório atual
     for nome in os.listdir('.'):
         # Verifica se o arquivo tem uma extensão válida
         for ext in EXTENSOES_ACEITAS:
@@ -106,8 +107,9 @@ def main():
 
     for nome in fotos:
         print(f"\nProcessando {nome}...")
-        print_metadados(nome) # Exibe os metadados da imagem
-        extrair_coordenadas(nome) # extrai e exibe as coordenadas
-        time.sleep(1)  # delay para evitar bloqueios na API
+        print_metadados(nome)  # Exibe os metadados da imagem
+        extrair_coordenadas(nome)  # Extrai e exibe as coordenadas
+        time.sleep(1)  # Delay para evitar bloqueios na API
 
+# Executa o programa
 main()
